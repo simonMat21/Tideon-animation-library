@@ -1,35 +1,73 @@
 // Animator.js
 
+/**
+ * Animator class: handles frame-based animations with support for easing,
+ * sequences, and flexible parameter-driven transitions (from/to/animate).
+ */
 export class Animator {
   constructor() {
-    this.delayMult = 1; // this is used to slow down the animation
+    // ⏱ Multiplier to slow down or speed up all animations
+    this.delayMult = 1;
+
+    // 🔁 Current frame count in an animation
     this.n = 0;
+
+    // 🔁 Current step in a multi-part animation sequence
     this.w = 0;
+
+    // 🔁 Current animation index being executed from listOfActions
     this.aniCount = 0;
-    // this might cause issues later
-    this.g = []; // this is used to store the initial value of the animation
+
+    // 🧠 Stores initial values for 'animate' transitions
+    this.g = [];
+
+    // 🧠 Generic reusable temporary array for value storage
     this.v = [];
+
+    // 🧠 Stores initial values for sequences (used in .from, .mix, etc.)
     this.initialValArray = [];
 
+    // 🧠 Stores return values of initialFunc (one-time function caching)
     this.initialFuncKeyArr = [];
+
+    // 🧠 Stores return values of initialFuncSeq (like above but for sequences)
     this.initialFuncSeqKeyArr = [];
 
+    // 🧠 Optional object ID registry for external mapping
     this.objectIdArray = [];
+
+    // 🧠 Stores named animation functions (like a function dictionary)
     this.functionsDictionary = {};
 
+    // 📜 List of animation "stages" to execute in sequence
     this.listOfActions = [];
 
-    this.executing = false;
-
+    // 🔁 Whether an animation sequence should loop forever
     this.shouldLoop = false;
+
+    // ⚙️ Whether mainLoop is actively executing animations
+    this.executing = false;
   }
 
+  // 🔧 Utility: returns the appropriate easing function
+  getEaseFunction(type) {
+    const easeMap = {
+      linear: (t) => t,
+      easeIn: (t) => t * t,
+      easeOut: (t) => t * (2 - t),
+      easeInOut: (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t),
+    };
+    return easeMap[type] || easeMap.linear;
+  }
+
+  // Set global delay multiplier if no animation is currently running
   setDelayMult(val) {
     if (this.n == 0 && val > 0) {
       this.delayMult = val;
     }
   }
 
+  // Returns and caches initial value `a` by ID
   initialVal(a, id) {
     if (this.g[id] == 0 || this.g[id] == undefined) {
       this.g[id] = a;
@@ -37,6 +75,7 @@ export class Animator {
     return this.g[id];
   }
 
+  // Like initialVal, but specifically for sequences
   initialValSeq(a = null, id = 0) {
     if (a !== null && this.initialValArray[id] === undefined) {
       this.initialValArray[id] = a;
@@ -44,6 +83,7 @@ export class Animator {
     return this.initialValArray[id];
   }
 
+  // One-time function result storage for static animations
   initialFunc(func, id = 0) {
     if (this.initialFuncKeyArr[id] == undefined) {
       this.initialFuncKeyArr[id] = func() || -1;
@@ -51,6 +91,7 @@ export class Animator {
     return this.initialFuncKeyArr[id];
   }
 
+  // One-time function result storage for animation sequences
   initialFuncSeq(func, id = 0) {
     if (this.initialFuncSeqKeyArr[id] == undefined) {
       this.initialFuncSeqKeyArr[id] = func() || -1;
@@ -58,18 +99,27 @@ export class Animator {
     return this.initialFuncSeqKeyArr[id];
   }
 
+  /**
+   * Core animation handler — runs `func(frame)` up to `no_frame` times.
+   * Returns 0 if still running, 1 if finished.
+   */
   sub_animate(no_frame, func) {
     if (this.n < no_frame) {
-      func();
+      func(this.n);
       this.n++;
       return 0;
     } else {
+      // Reset caches when animation ends
       this.g = [];
       this.initialFuncKeyArr = [];
       return 1;
     }
   }
 
+  /**
+   * Executes a list of animation callbacks in sequence.
+   * Returns 1 when sequence is finished.
+   */
   animationSequence(arr) {
     if (this.w < arr.length && arr[this.w]()) {
       this.n = 0;
@@ -85,37 +135,53 @@ export class Animator {
     return 0;
   }
 
+  /**
+   * Basic time-based animation wrapper.
+   * `func(frame)` is called each frame for `duration` frames.
+   */
   animateFunc(duration, func) {
     duration = duration <= 1 ? 1 : Math.floor(duration * this.delayMult);
-    return () => {
-      return this.sub_animate(duration, func);
-    };
+    return () => this.sub_animate(duration, func);
   }
 
+  /**
+   * Animate object properties using deltas, supports easing.
+   * A = [ { obj, changes, parameters: { ease: "easeIn" } } ]
+   */
   animate(duration, A) {
     duration = duration <= 1 ? 1 : Math.floor(duration * this.delayMult);
-    if (A.length === 0) {
-      duration = 0;
-    }
+    if (A.length === 0) duration = 0;
+
+    A.forEach(({ obj, changes }, ind) => {
+      let j = 0;
+      for (const key in changes) {
+        changes["__start_" + key] = this.initialVal(obj[key], 1001 * ind + j);
+        j++;
+      }
+    });
 
     return () => {
-      return this.sub_animate(duration, () => {
-        A.forEach(({ obj, changes }) => {
+      return this.sub_animate(duration, (frame) => {
+        const t = Math.min(frame / duration, 1);
+        A.forEach(({ obj, changes, parameters = {} }) => {
+          const easeFunc = this.getEaseFunction(parameters.ease || "linear");
           for (const key in changes) {
-            if (typeof changes[key] === "number") {
-              obj[key] += changes[key] / duration;
-            }
+            if (key.startsWith("__")) continue;
+            const start = changes["__start_" + key];
+            const delta = changes[key];
+            obj[key] = start + delta * easeFunc(t);
           }
         });
       });
     };
   }
 
+  /**
+   * Animates from current value to target value
+   */
   to(duration, A) {
     duration = duration <= 1 ? 1 : Math.floor(duration * this.delayMult);
-    if (A.length == 0) {
-      duration = 0;
-    }
+    if (A.length == 0) duration = 0;
     return () => {
       return this.sub_animate(duration, () => {
         A.forEach(({ obj, changes }, ind) => {
@@ -133,11 +199,12 @@ export class Animator {
     };
   }
 
+  /**
+   * Starts from an offset state, then animates back to original state
+   */
   from(duration, A) {
     duration = duration <= 1 ? 1 : Math.floor(duration * this.delayMult);
-    if (A.length == 0) {
-      duration = 0;
-    }
+    if (A.length == 0) duration = 0;
     return () => {
       return this.sub_animate(duration, () => {
         let copy = this.iVSub(
@@ -160,19 +227,18 @@ export class Animator {
               obj[key] += (copy[ind][key] - changes[key]) / duration;
             }
           }
-          //   obj.opacity += (copy[ind].opacity - opacity) / duration;
-          //   obj.x += (copy[ind].x - x) / duration;
-          //   obj.y += (copy[ind].y - y) / duration;
         });
       });
     };
   }
 
+  /**
+   * Mixed animation mode combining `from`, `to`, and `animate` tags.
+   * Each item in A must have a `tag` property: "from", "to", or "animate".
+   */
   mix(duration, A) {
     duration = duration <= 1 ? 1 : Math.floor(duration * this.delayMult);
-    if (A.length == 0) {
-      duration = 0;
-    }
+    if (A.length == 0) duration = 0;
     return () => {
       return this.sub_animate(duration, () => {
         let copy = this.initialVal(
@@ -190,7 +256,7 @@ export class Animator {
           this.initialVal(1, 1001);
         }
         A.forEach((item, ind) => {
-          const [tag, obj, changes] = [item.tag, item.obj, item.changes];
+          const { tag, obj, changes } = item;
           if (tag === "from") {
             for (const key in changes) {
               if (typeof changes[key] === "number") {
@@ -219,14 +285,20 @@ export class Animator {
     };
   }
 
+  /**
+   * delays the animation for the given number of frames.
+   * @param {*} duration number of frames to delay
+   */
   delay(duration) {
     return () => {
       return this.sub_animate(duration, () => {});
     };
   }
 
+  /**
+   * Core driver that steps through `listOfActions` each frame.
+   */
   mainAnimationSequence() {
-    //arr = [{name:"",Args:[0,1]}]
     if (this.aniCount < this.listOfActions.length) {
       this.executing = true;
       const Arg = this.listOfActions[this.aniCount];
@@ -249,12 +321,24 @@ export class Animator {
     }
   }
 
+  /**
+   * Adds a stage to the animation sequence.
+   * A stage is an object: { funcName, Args } or { func, Args }
+   */
   addStage(stage) {
     this.listOfActions.push(stage);
   }
 
+  /**
+   * Runs the animation loop every 10ms using setTimeout.
+   */
   mainLoop() {
     this.mainAnimationSequence();
     setTimeout(() => this.mainLoop(), 10);
+  }
+
+  // Internal helper used in `from()` (assumed based on naming)
+  iVSub(a, id) {
+    return this.initialVal(a, id);
   }
 }

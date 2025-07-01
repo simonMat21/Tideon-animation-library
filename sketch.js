@@ -29,7 +29,14 @@ animator.addStage({
         },
       ]),
       animator.delay(20),
-      animator.animate(60, [{ obj: box1, changes: { x: 300 } }]),
+      //   animator.animate(60, [{ obj: box1, changes: { x: 300 } }]),
+      animator.animate(80, [
+        {
+          obj: box1,
+          changes: { x: 500 },
+          parameters: { ease: "easeOut" },
+        },
+      ]),
       animator.to(60, [
         {
           obj: box1,
@@ -42,5 +49,5 @@ animator.addStage({
   },
 });
 
-// animator.shouldLoop = true;
+animator.shouldLoop = true;
 animator.mainLoop();

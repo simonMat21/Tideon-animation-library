@@ -64,4 +64,11 @@ export class htmlToObj {
   get rotation() {
     return this._rotation;
   }
+
+  set text(value) {
+    document.getElementById(this.id).textContent = value;
+  }
+  get text() {
+    return document.getElementById(this.id).textContent;
+  }
 }
