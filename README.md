@@ -1,4 +1,4 @@
-# 🌀 Animator.js
+# 🌀 Tideon.js
 
 A lightweight, customizable JavaScript animation engine that supports `to`, `from`, `animate`, easing functions (`linear`, `easeIn`, `easeOut`, etc.), and animation sequences. Perfect for animating object-style properties such as `x`, `y`, `opacity`, and more — commonly used in custom DOM wrappers or canvas-style animations.
 

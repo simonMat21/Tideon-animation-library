@@ -1,4 +1,4 @@
-import { Animator } from "./animator.js";
+import { Animator } from "./Tideon.js";
 import { htmlToObj } from "./htmlToObj.js";
 
 const animator = new Animator();
