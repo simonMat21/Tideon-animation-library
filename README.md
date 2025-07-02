@@ -18,7 +18,7 @@ A lightweight, customizable JavaScript animation engine that supports `to`, `fro
 
 ## 🚀 Getting Started
 
-### 1. Add the file
+### 1. Add the file and import Animator
 
 ```js
 import { Animator } from "./Tideon.js";
@@ -55,6 +55,8 @@ animator.addStage({
 
 ## 🧠 Core Concepts
 
+## These are functions that are to be used with animationSequence
+
 ### 🎬 animate(duration, changesArray)
 
 Performs delta-based animations with optional easing.
@@ -62,7 +64,7 @@ Performs delta-based animations with optional easing.
 ```js
 animator.animate(60, [
   { obj, changes: { x: 100 }, parameters: { ease: "easeInOut" } },
-])();
+]);
 ```
 
 ---
@@ -72,7 +74,7 @@ animator.animate(60, [
 Moves an object **to** a target value.
 
 ```js
-animator.to(60, [{ obj, changes: { x: 400, opacity: 0 } }])();
+animator.to(60, [{ obj, changes: { x: 400, opacity: 0 } }]);
 ```
 
 ---
@@ -82,7 +84,7 @@ animator.to(60, [{ obj, changes: { x: 400, opacity: 0 } }])();
 Animates an object **from** a temporary offset value to its original.
 
 ```js
-animator.from(60, [{ obj, changes: { y: -50 } }])();
+animator.from(60, [{ obj, changes: { y: -50 } }]);
 ```
 
 ---
@@ -96,7 +98,7 @@ animator.mix(60, [
   { tag: "from", obj, changes: { x: -100 } },
   { tag: "to", obj, changes: { y: 200 } },
   { tag: "animate", obj, changes: { opacity: 0.3 } },
-])();
+]);
 ```
 
 ---
@@ -106,7 +108,7 @@ animator.mix(60, [
 Inserts a pause between animations.
 
 ```js
-animator.delay(30)();
+animator.delay(30);
 ```
 
 ---

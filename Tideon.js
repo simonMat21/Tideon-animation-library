@@ -295,6 +295,34 @@ export class Animator {
     };
   }
 
+  standAloneAnimate(duration, A) {
+    const anim = this.animate(duration, A); // Create once
+    this.addStage({
+      func: () => this.animationSequence([anim]), // Reuse the same function
+    });
+  }
+
+  standAloneTo(duration, A) {
+    const anim = this.to(duration, A); // Create once
+    this.addStage({
+      func: () => this.animationSequence([anim]), // Reuse the same function
+    });
+  }
+
+  standAloneFrom(duration, A) {
+    const anim = this.from(duration, A); // Create once
+    this.addStage({
+      func: () => this.animationSequence([anim]), // Reuse the same function
+    });
+  }
+
+  standAloneMix(duration, A) {
+    const anim = this.mix(duration, A); // Create once
+    this.addStage({
+      func: () => this.animationSequence([anim]), // Reuse the same function
+    });
+  }
+
   /**
    * Core driver that steps through `listOfActions` each frame.
    */
@@ -332,9 +360,9 @@ export class Animator {
   /**
    * Runs the animation loop every 10ms using setTimeout.
    */
-  mainLoop() {
+  mainLoop(interval = 10) {
     this.mainAnimationSequence();
-    setTimeout(() => this.mainLoop(), 10);
+    setTimeout(() => this.mainLoop(interval), interval);
   }
 
   // Internal helper used in `from()` (assumed based on naming)

@@ -2,6 +2,7 @@ import { Animator, htmlToObj } from "./Tideon.js";
 
 const animator = new Animator();
 const box1 = new htmlToObj("box1");
+const box2 = new htmlToObj("box2");
 
 animator.addStage({
   func: function () {
@@ -9,7 +10,7 @@ animator.addStage({
       animator.animateFunc(1, () => {
         box1.setAll({
           x: 100,
-          y: 100,
+          y: 200,
           opacity: 0,
           width: 100,
           height: 100,
@@ -50,5 +51,9 @@ animator.addStage({
   },
 });
 
+animator.standAloneAnimate(100, [
+  { obj: box2, changes: { x: 800 }, parameters: { ease: "easeInOut" } },
+]);
+
 animator.shouldLoop = true;
-animator.mainLoop();
+animator.mainLoop(10);
