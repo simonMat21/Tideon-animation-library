@@ -1,5 +1,4 @@
-import { Animator } from "./Tideon.js";
-import { htmlToObj } from "./htmlToObj.js";
+import { Animator, htmlToObj } from "./Tideon.js";
 
 const animator = new Animator();
 const box1 = new htmlToObj("box1");
@@ -8,12 +7,14 @@ animator.addStage({
   func: function () {
     return animator.animationSequence([
       animator.animateFunc(1, () => {
-        box1.opacity = 0;
-        box1.x = 100;
-        box1.y = 100;
-        box1.width = 100;
-        box1.height = 100;
-        box1.rotation = 0;
+        box1.setAll({
+          x: 100,
+          y: 100,
+          opacity: 0,
+          width: 100,
+          height: 100,
+          rotation: 0,
+        });
       }),
       animator.delay(50),
       animator.to(60, [
