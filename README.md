@@ -21,7 +21,7 @@ A lightweight, customizable JavaScript animation engine that supports `to`, `fro
 ### 1. Add the file
 
 ```js
-import { Animator } from "./Animator.js";
+import { Animator } from "./Tideon.js";
 ```
 
 ### 2. Create an animator instance and initialise the loop
@@ -55,7 +55,7 @@ animator.addStage({
 
 ## 🧠 Core Concepts
 
-### 🎬 `animate(duration, changesArray)`
+### 🎬 animate(duration, changesArray)
 
 Performs delta-based animations with optional easing.
 
@@ -67,7 +67,7 @@ animator.animate(60, [
 
 ---
 
-### 📈 `to(duration, changesArray)`
+### 📈 to(duration, changesArray)
 
 Moves an object **to** a target value.
 
@@ -77,7 +77,7 @@ animator.to(60, [{ obj, changes: { x: 400, opacity: 0 } }])();
 
 ---
 
-### 📉 `from(duration, changesArray)`
+### 📉 from(duration, changesArray)
 
 Animates an object **from** a temporary offset value to its original.
 
@@ -87,7 +87,7 @@ animator.from(60, [{ obj, changes: { y: -50 } }])();
 
 ---
 
-### 🧪 `mix(duration, array)`
+### 🧪 mix(duration, array)
 
 Combines `from`, `to`, and `animate` style instructions in one animation:
 
@@ -101,7 +101,7 @@ animator.mix(60, [
 
 ---
 
-### 💤 `delay(duration)`
+### 💤 delay(duration)
 
 Inserts a pause between animations.
 
@@ -111,7 +111,7 @@ animator.delay(30)();
 
 ---
 
-### 🧵 `animationSequence([step1, step2, ...])`
+### 🧵 animationSequence([step1, step2, ...])
 
 Runs multiple animations one after the other.
 
@@ -124,7 +124,7 @@ animator.animationSequence([step1, step2]);
 
 ---
 
-### 🔁 `mainLoop()`
+### 🔁 mainLoop()
 
 Continuously executes your animation sequence using `setTimeout`.
 
