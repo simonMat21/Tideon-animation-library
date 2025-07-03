@@ -3,25 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <title>Example</title>
+    <title>Tideon.js</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <main>
-      <div
-        id="box1"
-        style="position: absolute; width: 100px; height: 100px; background: red"
-      ></div>
-      <div
-        id="box2"
-        style="
-          position: absolute;
-          width: 100px;
-          height: 100px;
-          background: green;
-          border-radius: 50%;
-        "
-      ></div>
+      <div class="canvas">
+        <div id="box1"></div>
+      </div>
+      <div class="canvas">
+        <div id="box2"></div>
+      </div>
     </main>
     <script type="module" src="example.js"></script>
   </body>

@@ -53,10 +53,99 @@ export class Animator {
   getEaseFunction(type) {
     const easeMap = {
       linear: (t) => t,
+
+      // Quadratic
       easeIn: (t) => t * t,
       easeOut: (t) => t * (2 - t),
       easeInOut: (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t),
+
+      // Cubic
+      easeInCubic: (t) => t * t * t,
+      easeOutCubic: (t) => --t * t * t + 1,
+      easeInOutCubic: (t) =>
+        t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) ** 2 + 1,
+
+      // Exponential
+      easeInExpo: (t) => (t === 0 ? 0 : Math.pow(2, 10 * (t - 1))),
+      easeOutExpo: (t) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)),
+      easeInOutExpo: (t) => {
+        if (t === 0 || t === 1) return t;
+        t *= 2;
+        return t < 1
+          ? 0.5 * Math.pow(2, 10 * (t - 1))
+          : 0.5 * (2 - Math.pow(2, -10 * (t - 1)));
+      },
+
+      // Back
+      easeInBack: (t) => {
+        const c1 = 1.70158;
+        return c1 * t * t * t - c1 * t * t;
+      },
+      easeOutBack: (t) => {
+        const c1 = 1.70158;
+        return 1 + c1 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+      },
+      easeInOutBack: (t) => {
+        const c1 = 1.70158 * 1.525;
+        return t < 0.5
+          ? (Math.pow(2 * t, 2) * ((c1 + 1) * 2 * t - c1)) / 2
+          : (Math.pow(2 * t - 2, 2) * ((c1 + 1) * (t * 2 - 2) + c1) + 2) / 2;
+      },
+
+      // Elastic
+      easeOutElastic: (t) => {
+        const c4 = (2 * Math.PI) / 3;
+        return t === 0
+          ? 0
+          : t === 1
+          ? 1
+          : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+      },
+
+      drag: (t) => 1 - Math.pow(1 - t, 3),
+
+      // Bounce
+
+      bounce: (t) => {
+        const n1 = 7.5625;
+        const d1 = 2.75;
+
+        if (t < 1 / d1) {
+          return n1 * t * t;
+        } else if (t < 2 / d1) {
+          t -= 1.5 / d1;
+          return n1 * t * t + 0.75;
+        } else if (t < 2.5 / d1) {
+          t -= 2.25 / d1;
+          return n1 * t * t + 0.9375;
+        } else {
+          t -= 2.625 / d1;
+          return n1 * t * t + 0.984375;
+        }
+      },
+
+      easeOutBounce: (t) => {
+        const n1 = 7.5625;
+        const d1 = 2.75;
+        if (t < 1 / d1) {
+          return n1 * t * t;
+        } else if (t < 2 / d1) {
+          return n1 * (t -= 1.5 / d1) * t + 0.75;
+        } else if (t < 2.5 / d1) {
+          return n1 * (t -= 2.25 / d1) * t + 0.9375;
+        } else {
+          return n1 * (t -= 2.625 / d1) * t + 0.984375;
+        }
+      },
+
+      easeInBounce: (t) => 1 - easeMap.easeOutBounce(1 - t),
+
+      easeInOutBounce: (t) =>
+        t < 0.5
+          ? (1 - easeMap.easeOutBounce(1 - 2 * t)) * 0.5
+          : (1 + easeMap.easeOutBounce(2 * t - 1)) * 0.5,
     };
+
     return easeMap[type] || easeMap.linear;
   }
 
@@ -142,6 +231,42 @@ export class Animator {
   animateFunc(duration, func) {
     duration = duration <= 1 ? 1 : Math.floor(duration * this.delayMult);
     return () => this.sub_animate(duration, func);
+  }
+
+  /**
+   * Animate object properties using deltas, supports easing.
+   * A = [ { obj, changes, parameters: { ease: "easeIn" } } ]
+   */
+  STanimate_(duration, A) {
+    duration = duration <= 1 ? 1 : Math.floor(duration * this.delayMult);
+    if (A.length === 0) duration = 0;
+
+    let initialized = false;
+
+    return () => {
+      if (!initialized) {
+        A.forEach(({ obj, changes }, ind) => {
+          let j = 0;
+          for (const key in changes) {
+            changes["__start_" + key] = obj[key];
+            j++;
+          }
+        });
+        initialized = true;
+      }
+      return this.sub_animate(duration, (frame) => {
+        const t = Math.min(frame / duration, 1);
+        A.forEach(({ obj, changes, parameters = {} }) => {
+          const easeFunc = this.getEaseFunction(parameters.ease || "linear");
+          for (const key in changes) {
+            if (key.startsWith("__")) continue;
+            const start = changes["__start_" + key];
+            const delta = changes[key];
+            obj[key] = start + delta * easeFunc(t);
+          }
+        });
+      });
+    };
   }
 
   /**
@@ -296,7 +421,7 @@ export class Animator {
   }
 
   standAloneAnimate(duration, A) {
-    const anim = this.animate(duration, A); // Create once
+    const anim = this.STanimate_(duration, A); // Create once
     this.addStage({
       func: () => this.animationSequence([anim]), // Reuse the same function
     });
@@ -318,6 +443,20 @@ export class Animator {
 
   standAloneMix(duration, A) {
     const anim = this.mix(duration, A); // Create once
+    this.addStage({
+      func: () => this.animationSequence([anim]), // Reuse the same function
+    });
+  }
+
+  standAloneDelay(duration) {
+    const anim = this.delay(duration); // Create once
+    this.addStage({
+      func: () => this.animationSequence([anim]), // Reuse the same function
+    });
+  }
+
+  standAloneFunc(duration, func) {
+    const anim = this.animateFunc(duration, func); // Create once
     this.addStage({
       func: () => this.animationSequence([anim]), // Reuse the same function
     });
@@ -375,6 +514,7 @@ export class htmlToObj {
   constructor(id) {
     this.id = id;
     this._rotation = 0; // Store rotation internally
+    this._x = 0;
   }
 
   setAll(props) {
@@ -393,10 +533,11 @@ export class htmlToObj {
 
   // X position (left)
   set x(value) {
-    document.getElementById(this.id).style.left = value + "px";
+    this._x = value;
+    document.getElementById(this.id).style.left = this._x + "px";
   }
   get x() {
-    return parseFloat(getComputedStyle(document.getElementById(this.id)).left);
+    return this._x;
   }
 
   // Y position (top)

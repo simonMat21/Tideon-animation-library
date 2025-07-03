@@ -2,4 +2,128 @@
   background: red;
   width: 100px;
   height: 100px;
+  position: absolute;
+}
+
+#box2 {
+  background: blue;
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  border-radius: 50%;
+}
+
+#box3 {
+  background: blue;
+  left: 2vw;
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  border-radius: 50%;
+}
+
+.canvas {
+  width: 1500px;
+  height: 40vh;
+  background-color: green;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #0e1525;
+  color: white;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #0e1525;
+  border-bottom: 1px solid #1f2a40;
+}
+
+nav .logo {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+nav .buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+
+.btn.primary {
+  background-color: #2383e2;
+  color: white;
+}
+
+.btn.outline {
+  background: transparent;
+  border: 1px solid #3b4d66;
+  color: white;
+}
+
+.hero {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.hero-card {
+  background: linear-gradient(145deg, #121c31, #0a1222);
+  padding: 3rem;
+  border-radius: 12px;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
+  max-width: 600px;
+}
+
+.hero h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1rem;
+  color: #b0b8c5;
+  margin-bottom: 2rem;
+  line-height: 1.6;
 }

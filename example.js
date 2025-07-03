@@ -9,12 +9,18 @@ animator.addStage({
     return animator.animationSequence([
       animator.animateFunc(1, () => {
         box1.setAll({
-          x: 100,
-          y: 200,
+          x: 10,
+          y: 50,
           opacity: 0,
           width: 100,
           height: 100,
           rotation: 0,
+        });
+
+        box2.setAll({
+          x: 200,
+          y: 50,
+          opacity: 1,
         });
       }),
       animator.delay(50),
@@ -50,10 +56,25 @@ animator.addStage({
     ]);
   },
 });
-
-animator.standAloneAnimate(100, [
-  { obj: box2, changes: { x: 800 }, parameters: { ease: "easeInOut" } },
+animator.standAloneFunc(1, () => {
+  box2.setAll({
+    x: 200,
+    y: 50,
+    opacity: 1,
+  });
+});
+animator.standAloneAnimate(150, [
+  { obj: box2, changes: { x: 800 }, parameters: { ease: "drag" } },
 ]);
+animator.standAloneDelay(20);
+animator.standAloneAnimate(20, [{ obj: box2, changes: { opacity: -1 } }]);
+animator.standAloneFunc(1, () => {
+  box2.setAll({
+    x: 200,
+    y: 50,
+    opacity: 1,
+  });
+});
 
 animator.shouldLoop = true;
 animator.mainLoop(10);
