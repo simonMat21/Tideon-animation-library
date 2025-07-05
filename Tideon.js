@@ -248,21 +248,36 @@ export class Animator {
         A.forEach(({ obj, changes }, ind) => {
           let j = 0;
           for (const key in changes) {
-            changes["__start_" + key] = obj[key];
+            const start = obj[key];
+            const end = start + changes[key];
+            changes["__start_" + key] = start;
+            changes["__end_" + key] = end;
             j++;
           }
         });
         initialized = true;
       }
+
       return this.sub_animate(duration, (frame) => {
         const t = Math.min(frame / duration, 1);
+
         A.forEach(({ obj, changes, parameters = {} }) => {
           const easeFunc = this.getEaseFunction(parameters.ease || "linear");
+
           for (const key in changes) {
             if (key.startsWith("__")) continue;
+
             const start = changes["__start_" + key];
-            const delta = changes[key];
-            obj[key] = start + delta * easeFunc(t);
+            const end = changes["__end_" + key];
+
+            let easedValue = start + (end - start) * easeFunc(t);
+
+            // Snap to final value on last frame
+            if (frame === duration - 1) {
+              easedValue = end;
+            }
+
+            obj[key] = easedValue;
           }
         });
       });
@@ -280,7 +295,10 @@ export class Animator {
     A.forEach(({ obj, changes }, ind) => {
       let j = 0;
       for (const key in changes) {
-        changes["__start_" + key] = this.initialVal(obj[key], 1001 * ind + j);
+        const start = this.initialVal(obj[key], 1001 * ind + j);
+        const end = start + changes[key];
+        changes["__start_" + key] = start;
+        changes["__end_" + key] = end;
         j++;
       }
     });
@@ -288,13 +306,24 @@ export class Animator {
     return () => {
       return this.sub_animate(duration, (frame) => {
         const t = Math.min(frame / duration, 1);
+
         A.forEach(({ obj, changes, parameters = {} }) => {
           const easeFunc = this.getEaseFunction(parameters.ease || "linear");
+
           for (const key in changes) {
             if (key.startsWith("__")) continue;
+
             const start = changes["__start_" + key];
-            const delta = changes[key];
-            obj[key] = start + delta * easeFunc(t);
+            const end = changes["__end_" + key];
+
+            let easedValue = start + (end - start) * easeFunc(t);
+
+            // Force exact end value on final frame to prevent drift
+            if (frame === duration - 1) {
+              easedValue = end;
+            }
+
+            obj[key] = easedValue;
           }
         });
       });
