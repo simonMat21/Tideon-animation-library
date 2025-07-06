@@ -2,9 +2,11 @@
 
 A lightweight, customizable JavaScript animation engine that supports `to`, `from`, `animate`, easing functions (`linear`, `easeIn`, `easeOut`, etc.), and animation sequences. Perfect for animating object-style properties such as `x`, `y`, `opacity`, and more — commonly used in custom DOM wrappers or canvas-style animations.
 
+create cool and amazing visuals with Tideon.js
+
 ---
-Example use of Tideon.js :   [example website](https://simonmat21.github.io/Tideon-animation-library/).
----
+
+## Example use of Tideon.js : [example website](https://simonmat21.github.io/Tideon-animation-library/).
 
 ## 📦 Features
 
@@ -38,19 +40,13 @@ animator.mainLoop();
 ```js
 const box = { x: 0, y: 0, opacity: 1 };
 
-animator.addStage({
-  func: function () {
-    return animator.animationSequence([
-      animator.animate(80, [
-        {
-          obj: box,
-          changes: { x: 500 },
-          parameters: { ease: "easeOut" },
-        },
-      ]),
-    ]);
+animator.standAloneAnimate(150, [
+  {
+    obj: box,
+    changes: { x: 1000 },
+    parameters: { ease: "easeOut" },
   },
-});
+]);
 ```
 
 ---
@@ -222,5 +218,5 @@ MIT License — Free to use, modify, and distribute.
 
 ## ✍️ Author
 
-Built by [Justaguy.21] — Happy Animating!  
+Built by Justaguy.21 — Happy Animating!  
 Feel free to open issues or contribute on GitHub.

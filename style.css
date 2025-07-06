@@ -8,11 +8,13 @@
 }
 
 .canvas {
-  width: 1500px;
+  width: 1000px;
   height: 300px;
   background-color: green;
   position: relative;
   margin-bottom: 10px;
+  left: -200px;
+  transform: scale(0.6);
 }
 
 * {

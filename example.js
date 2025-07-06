@@ -36,16 +36,16 @@ const easeFunctionNames = [
 for (let i = 0; i < animators.length; i++) {
   animators[i].standAloneFunc(1, () => {
     boxes[i].setAll({
-      x: 200,
+      x: 50,
       y: 90,
       opacity: 1,
     });
   });
   animators[i].standAloneDelay(20);
-  animators[i].standAloneAnimate(150, [
+  animators[i].standAloneAnimate(100, [
     {
       obj: boxes[i],
-      changes: { x: 1000 },
+      changes: { x: 700 },
       parameters: { ease: easeFunctionNames[i] },
     },
   ]);
