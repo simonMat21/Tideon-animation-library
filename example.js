@@ -43,13 +43,13 @@ animators[1].addStage({
     return animators[1].animationSequence([
       animators[1].animateFunc(1, () => {
         letters[0].setAll({
-          x: 60,
+          x: 80,
           y: 0,
           rotation: -90,
           opacity: 0,
         });
         letters[1].setAll({
-          x: 200,
+          x: 210,
           y: 0,
           opacity: 0,
         });
