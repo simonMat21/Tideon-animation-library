@@ -206,7 +206,7 @@ animators[2].standAloneCurve(
       y: 121,
     },
   ],
-  300
+  100
 );
 
 //--------------------------------------------------------------------------------
@@ -221,7 +221,7 @@ animators[0].mainLoop(10);
 animators[1].shouldLoop = true;
 animators[1].mainLoop(10);
 
-// animators[2].shouldLoop=true;
+animators[2].shouldLoop = true;
 animators[2].mainLoop(10);
 
 //--------------------------------------------------------------------------------

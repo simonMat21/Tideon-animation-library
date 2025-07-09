@@ -498,6 +498,7 @@ export class Animator {
    * @param {*} ease Easing function name (e.g. "easeInOutCubic")
    */
   standAloneCurve(obj, points, duration = 100, ease = "linear") {
+    duration *= 2;
     if (points.length < 2) return;
 
     const easeFunc = this.getEaseFunction(ease);
@@ -534,29 +535,24 @@ export class Animator {
       segments.push([p0, p1, p2, p3]);
     }
 
-    this.addStage({
-      func: () =>
-        this.animationSequence([
-          this.animateFunc(duration, (frame) => {
-            const t = easeFunc(frame / duration);
-            const total = segments.length;
-            const segT = Math.min(t * total, total - 0.00001);
-            const segIndex = Math.floor(segT);
-            const localT = segT - segIndex;
+    this.standAloneFunc(duration, (frame) => {
+      const t = easeFunc(frame / duration);
+      const total = segments.length;
+      const segT = Math.min(t * total, total - 0.00001);
+      const segIndex = Math.floor(segT);
+      const localT = segT - segIndex;
 
-            const [p0, p1, p2, p3] = segments[segIndex];
-            const pos = getCatmullRomPoint(p0, p1, p2, p3, localT);
+      const [p0, p1, p2, p3] = segments[segIndex];
+      const pos = getCatmullRomPoint(p0, p1, p2, p3, localT);
 
-            obj.x = pos.x;
-            obj.y = pos.y;
+      obj.x = pos.x;
+      obj.y = pos.y;
 
-            // Optional snap
-            if (frame === duration - 1) {
-              obj.x = points[points.length - 1].x;
-              obj.y = points[points.length - 1].y;
-            }
-          }),
-        ]),
+      // Optional snap
+      if (frame === duration - 1) {
+        obj.x = points[points.length - 1].x;
+        obj.y = points[points.length - 1].y;
+      }
     });
   }
 

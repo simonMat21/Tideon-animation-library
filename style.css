@@ -17,6 +17,7 @@
   width: 150px;
   height: 150px;
   position: absolute;
+  opacity: 0;
   /* border-radius: 50%; */
   display: flex;
   align-items: center;
