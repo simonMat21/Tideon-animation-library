@@ -1,16 +1,4 @@
 import { Animator, htmlToObj } from "./Tideon.js";
-
-let animators = [];
-
-for (let i = 0; i < 8; i++) {
-  animators.push(new Animator());
-}
-
-let boxes = [];
-for (let i = 0; i < 8; i++) {
-  boxes.push(new htmlToObj(`box${i}`));
-}
-
 const easeFunctionNames = [
   "linear",
   "easeIn",
@@ -33,27 +21,164 @@ const easeFunctionNames = [
   "easeInOutBounce",
 ];
 
-for (let i = 0; i < animators.length; i++) {
-  animators[i].standAloneFunc(1, () => {
-    boxes[i].setAll({
-      x: 50,
-      y: 90,
-      opacity: 1,
-    });
-  });
-  animators[i].standAloneDelay(20);
-  animators[i].standAloneAnimate(100, [
-    {
-      obj: boxes[i],
-      changes: { x: 700 },
-      parameters: { ease: easeFunctionNames[i] },
-    },
-  ]);
-  animators[i].standAloneDelay(20);
-  animators[i].standAloneAnimate(50, [
-    { obj: boxes[i], changes: { opacity: -1 } },
-  ]);
+let animators = [];
+
+for (let i = 0; i < 8; i++) {
+  animators.push(new Animator());
 }
+
+let boxes = [];
+for (let i = 0; i < 8; i++) {
+  boxes.push(new htmlToObj(`box${i}`));
+}
+
+let letters = [];
+for (let i = 0; i < 9; i++) {
+  letters.push(new htmlToObj(`letter${i}`));
+}
+
+animators[1].addStage({
+  func: function () {
+    return animators[1].animationSequence([
+      animators[1].animateFunc(1, () => {
+        letters[0].setAll({
+          x: 60,
+          y: 0,
+          rotation: -90,
+          opacity: 0,
+        });
+        letters[1].setAll({
+          x: 200,
+          y: 0,
+          opacity: 0,
+        });
+        letters[2].setAll({
+          x: 240,
+          y: 100,
+          rotation: -180,
+          opacity: 0,
+        });
+        letters[3].setAll({
+          x: 280,
+          y: 200,
+          opacity: 0,
+        });
+        letters[4].setAll({
+          x: 320,
+          y: 100,
+          fontSize: 0,
+          opacity: 0,
+        });
+        letters[5].setAll({
+          x: 360,
+          y: 100,
+          fontSize: 180,
+          opacity: 0,
+        });
+        letters[6].setAll({
+          x: 400,
+          y: 100,
+          fontSize: 180,
+          opacity: 0,
+        });
+        letters[7].setAll({
+          x: 440,
+          y: 200,
+          opacity: 0,
+        });
+        letters[8].setAll({
+          x: 480,
+          y: 0,
+          opacity: 0,
+        });
+      }),
+      animators[1].delay(20),
+      animators[1].animate(60, [
+        {
+          obj: letters[0],
+          changes: { x: 100, y: 100, rotation: 90, opacity: 1 },
+          parameters: { ease: "easeInOut" },
+        },
+        {
+          obj: letters[1],
+          changes: { y: 100, opacity: 1 },
+          parameters: { ease: "easeInOut" },
+        },
+        {
+          obj: letters[2],
+          changes: { rotation: 180, opacity: 1 },
+          parameters: { ease: "easeInOut" },
+        },
+        {
+          obj: letters[3],
+          changes: { y: -100, opacity: 1 },
+          parameters: { ease: "easeInOut" },
+        },
+        {
+          obj: letters[4],
+          changes: { fontSize: 70, opacity: 1 },
+          parameters: { ease: "easeInOut" },
+        },
+        {
+          obj: letters[5],
+          changes: { fontSize: -110, opacity: 1 },
+          parameters: { ease: "easeInOut" },
+        },
+        {
+          obj: letters[6],
+          changes: { fontSize: -110, opacity: 1 },
+          parameters: { ease: "easeInOut" },
+        },
+      ]),
+      animators[1].animate(80, [
+        {
+          obj: letters[7],
+          changes: { y: -100, opacity: 1 },
+          parameters: { ease: "easeOutElastic" },
+        },
+        {
+          obj: letters[8],
+          changes: { y: 100, opacity: 1 },
+          parameters: { ease: "easeOutBounce" },
+        },
+      ]),
+      animators[1].delay(80),
+      animators[1].animate(
+        40,
+        letters.map((l) => ({
+          obj: l,
+          changes: { opacity: -1 },
+        }))
+      ),
+    ]);
+  },
+});
+
+animators[0].addStage({
+  func: function () {
+    return animators[0].animationSequence([
+      animators[0].animateFunc(1, () => {
+        boxes.forEach((b) => {
+          b.setAll({
+            x: 50,
+            y: 90,
+            opacity: 1,
+          });
+        });
+      }),
+      animators[0].delay(20),
+      animators[0].animate(
+        100,
+        boxes.map((b, i) => ({
+          obj: b,
+          changes: { x: 700 },
+          parameters: { ease: easeFunctionNames[i] },
+        }))
+      ),
+      animators[0].delay(20),
+    ]);
+  },
+});
 
 //--------------------------------------------------------------------------------
 

@@ -1,3 +1,28 @@
+#mainHeading {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 800px;
+  margin: auto auto;
+  position: relative;
+  left: 0;
+  top: 0;
+  transform: none;
+}
+.letter {
+  /* background: blue; */
+  font-size: 70px;
+  left: 2vw;
+  width: 150px;
+  height: 150px;
+  position: absolute;
+  /* border-radius: 50%; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .obj {
   background: blue;
   left: 2vw;

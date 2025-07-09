@@ -210,7 +210,7 @@ export class Animator {
    * Returns 1 when sequence is finished.
    */
   animationSequence(arr) {
-    if (this.w < arr.length && arr[this.w]()) {
+    if (this.w < arr.length && arr[this.w](this.w)) {
       this.n = 0;
       this.w++;
       if (this.w == arr.length) {
@@ -289,21 +289,20 @@ export class Animator {
    * A = [ { obj, changes, parameters: { ease: "easeIn" } } ]
    */
   animate(duration, A) {
-    duration = duration <= 1 ? 1 : Math.floor(duration * this.delayMult);
-    if (A.length === 0) duration = 0;
-
-    A.forEach(({ obj, changes }, ind) => {
-      let j = 0;
-      for (const key in changes) {
-        const start = this.initialVal(obj[key], 1001 * ind + j);
-        const end = start + changes[key];
-        changes["__start_" + key] = start;
-        changes["__end_" + key] = end;
-        j++;
-      }
-    });
-
     return () => {
+      duration = duration <= 1 ? 1 : Math.floor(duration * this.delayMult);
+      if (A.length === 0) duration = 0;
+
+      A.forEach(({ obj, changes }, ind) => {
+        let j = 0;
+        for (const key in changes) {
+          const start = this.initialVal(obj[key], 1001 * ind + j);
+          const end = start + changes[key];
+          changes["__start_" + key] = start;
+          changes["__end_" + key] = end;
+          j++;
+        }
+      });
       return this.sub_animate(duration, (frame) => {
         const t = Math.min(frame / duration, 1);
 
@@ -592,6 +591,26 @@ export class htmlToObj {
   get height() {
     return parseFloat(
       getComputedStyle(document.getElementById(this.id)).height
+    );
+  }
+
+  // scale
+  set scale(value) {
+    document.getElementById(this.id).style.transform = `scale(${value})`;
+  }
+  get scale() {
+    return parseFloat(
+      getComputedStyle(document.getElementById(this.id)).height
+    );
+  }
+
+  // fontSize
+  set fontSize(value) {
+    document.getElementById(this.id).style.fontSize = value + "px";
+  }
+  get fontSize() {
+    return parseFloat(
+      getComputedStyle(document.getElementById(this.id)).fontSize
     );
   }
 
