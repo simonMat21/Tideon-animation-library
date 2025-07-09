@@ -333,9 +333,9 @@ export class Animator {
    * Animates from current value to target value
    */
   to(duration, A) {
-    duration = duration <= 1 ? 1 : Math.floor(duration * this.delayMult);
-    if (A.length == 0) duration = 0;
     return () => {
+      duration = duration <= 1 ? 1 : Math.floor(duration * this.delayMult);
+      if (A.length == 0) duration = 0;
       return this.sub_animate(duration, () => {
         A.forEach(({ obj, changes }, ind) => {
           let j = 1;
@@ -487,6 +487,76 @@ export class Animator {
     const anim = this.animateFunc(duration, func); // Create once
     this.addStage({
       func: () => this.animationSequence([anim]), // Reuse the same function
+    });
+  }
+  /**
+   * Animate an object smoothly along a mid-point quadratic Bézier path.
+   * Matches the same curve rendering used in canvas editors.
+   * @param {*} obj Object with x and y to animate
+   * @param {*} points Control points from the curve editor
+   * @param {*} duration Total animation duration
+   * @param {*} ease Easing function name (e.g. "easeInOutCubic")
+   */
+  standAloneCurve(obj, points, duration = 100, ease = "linear") {
+    if (points.length < 2) return;
+
+    const easeFunc = this.getEaseFunction(ease);
+
+    // Catmull-Rom interpolation helper
+    function getCatmullRomPoint(p0, p1, p2, p3, t) {
+      const t2 = t * t;
+      const t3 = t2 * t;
+
+      return {
+        x:
+          0.5 *
+          (2 * p1.x +
+            (-p0.x + p2.x) * t +
+            (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 +
+            (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3),
+        y:
+          0.5 *
+          (2 * p1.y +
+            (-p0.y + p2.y) * t +
+            (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 +
+            (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3),
+      };
+    }
+
+    const segments = [];
+
+    // Create segments for all middle points (Catmull-Rom requires 4 points)
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i - 1 < 0 ? 0 : i - 1];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = points[i + 2 >= points.length ? points.length - 1 : i + 2];
+      segments.push([p0, p1, p2, p3]);
+    }
+
+    this.addStage({
+      func: () =>
+        this.animationSequence([
+          this.animateFunc(duration, (frame) => {
+            const t = easeFunc(frame / duration);
+            const total = segments.length;
+            const segT = Math.min(t * total, total - 0.00001);
+            const segIndex = Math.floor(segT);
+            const localT = segT - segIndex;
+
+            const [p0, p1, p2, p3] = segments[segIndex];
+            const pos = getCatmullRomPoint(p0, p1, p2, p3, localT);
+
+            obj.x = pos.x;
+            obj.y = pos.y;
+
+            // Optional snap
+            if (frame === duration - 1) {
+              obj.x = points[points.length - 1].x;
+              obj.y = points[points.length - 1].y;
+            }
+          }),
+        ]),
     });
   }
 

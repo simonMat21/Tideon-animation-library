@@ -31,6 +31,7 @@ let boxes = [];
 for (let i = 0; i < 8; i++) {
   boxes.push(new htmlToObj(`box${i}`));
 }
+let bb = new htmlToObj(`box${8}`);
 
 let letters = [];
 for (let i = 0; i < 9; i++) {
@@ -180,11 +181,47 @@ animators[0].addStage({
   },
 });
 
+animators[2].standAloneFunc(1, () => {
+  bb.x = 76;
+  bb.y = 34;
+});
+
+animators[2].standAloneCurve(
+  bb,
+  [
+    {
+      x: 39,
+      y: 123,
+    },
+    {
+      x: 456,
+      y: 29,
+    },
+    {
+      x: 30,
+      y: 28,
+    },
+    {
+      x: 406,
+      y: 121,
+    },
+  ],
+  300
+);
+
 //--------------------------------------------------------------------------------
 
-animators.forEach((ani) => {
-  ani.shouldLoop = true;
-  ani.mainLoop(10);
-});
+// animators.forEach((ani) => {
+//   ani.shouldLoop = true;
+//   ani.mainLoop(10);
+// });
+animators[0].shouldLoop = true;
+animators[0].mainLoop(10);
+
+animators[1].shouldLoop = true;
+animators[1].mainLoop(10);
+
+// animators[2].shouldLoop=true;
+animators[2].mainLoop(10);
 
 //--------------------------------------------------------------------------------
