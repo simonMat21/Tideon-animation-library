@@ -33,14 +33,14 @@
   border-radius: 50%;
 }
 
-.canvas {
+.canvasBox {
   width: 1000px;
   height: 300px;
   background-color: green;
   position: relative;
   margin-bottom: 10px;
-  left: -200px;
-  transform: scale(0.6);
+  /* left: -200px; */
+  /* transform: scale(0.6); */
 }
 
 * {

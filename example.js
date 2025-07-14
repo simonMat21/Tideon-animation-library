@@ -1,4 +1,7 @@
-import { Animator, htmlToObj } from "./Tideon.js";
+import { Animator, htmlToObj, initCurveEditor } from "./Tideon.js";
+
+// initCurveEditor();
+
 const easeFunctionNames = [
   "linear",
   "easeIn",
@@ -83,12 +86,12 @@ animators[1].addStage({
           opacity: 0,
         });
         letters[7].setAll({
-          x: 440,
+          x: 430,
           y: 200,
           opacity: 0,
         });
         letters[8].setAll({
-          x: 480,
+          x: 460,
           y: 0,
           opacity: 0,
         });
@@ -190,20 +193,16 @@ animators[2].standAloneCurve(
   bb,
   [
     {
-      x: 39,
-      y: 123,
+      x: 26,
+      y: 186,
     },
     {
-      x: 456,
+      x: 730,
+      y: 182,
+    },
+    {
+      x: 816,
       y: 29,
-    },
-    {
-      x: 30,
-      y: 28,
-    },
-    {
-      x: 406,
-      y: 121,
     },
   ],
   100
@@ -215,6 +214,7 @@ animators[2].standAloneCurve(
 //   ani.shouldLoop = true;
 //   ani.mainLoop(10);
 // });
+
 animators[0].shouldLoop = true;
 animators[0].mainLoop(10);
 

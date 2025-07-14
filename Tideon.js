@@ -714,3 +714,146 @@ export class htmlToObj {
     return document.getElementById(this.id).textContent;
   }
 }
+
+export function initCurveEditor() {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  document.body.appendChild(canvas);
+
+  Object.assign(document.body.style, {
+    margin: "0",
+    overflow: "hidden",
+  });
+
+  Object.assign(canvas.style, {
+    display: "block",
+    backgroundColor: "#1a1a1a",
+    opacity: "0.5",
+    cursor: "crosshair",
+    position: "fixed",
+    top: "0",
+    left: "0",
+    zIndex: "9999", // ✅ ADD THIS LINE
+  });
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    draw();
+  }
+
+  requestAnimationFrame(resizeCanvas);
+  window.addEventListener("resize", resizeCanvas);
+
+  const points = [];
+  let draggingPoint = null;
+  const radius = 8;
+
+  function getMousePos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+  }
+
+  function getPointAt(x, y) {
+    return points.find((p) => Math.hypot(p.x - x, p.y - y) < radius);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Curve
+    if (points.length >= 2) {
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length - 1; i++) {
+        const xc = (points[i].x + points[i + 1].x) / 2;
+        const yc = (points[i].y + points[i + 1].y) / 2;
+        ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+      }
+      ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+      ctx.strokeStyle = "#00ffff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // Points
+    for (const p of points) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = "#ff4081";
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.stroke();
+    }
+  }
+
+  canvas.addEventListener("mousedown", (e) => {
+    console.log("mousedown");
+    const { x, y } = getMousePos(e);
+    const hit = getPointAt(x, y);
+    if (hit) {
+      draggingPoint = hit;
+    } else {
+      console.log("Adding point at:", x, y);
+      points.push({ x, y });
+      draw();
+    }
+  });
+
+  canvas.addEventListener("mousemove", (e) => {
+    const { x, y } = getMousePos(e);
+    canvas.style.cursor = getPointAt(x, y) ? "pointer" : "crosshair";
+    if (draggingPoint) {
+      console.log("Dragging");
+      draggingPoint.x = x;
+      draggingPoint.y = y;
+      draw();
+    }
+  });
+
+  canvas.addEventListener("mouseup", () => {
+    console.log("mouseup");
+    draggingPoint = null;
+  });
+
+  canvas.addEventListener("dblclick", (e) => {
+    const { x, y } = getMousePos(e);
+    const index = points.findIndex(
+      (p) => Math.hypot(p.x - x, p.y - y) < radius
+    );
+    if (index !== -1) {
+      console.log("Deleting point at index", index);
+      points.splice(index, 1);
+      draw();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key.toLowerCase() === "e") {
+      const coords = points.map((p) => ({
+        x: Math.round(p.x),
+        y: Math.round(p.y),
+      }));
+      console.log("Exported Points:", JSON.stringify(coords, null, 2));
+      const exportDiv = document.createElement("div");
+      exportDiv.innerText = "Exported to console";
+      Object.assign(exportDiv.style, {
+        position: "fixed",
+        top: "10px",
+        left: "10px",
+        backgroundColor: "#333",
+        color: "#0f0",
+        padding: "10px",
+        fontFamily: "monospace",
+        zIndex: "1000",
+      });
+      document.body.appendChild(exportDiv);
+      setTimeout(() => exportDiv.remove(), 3000);
+    }
+  });
+
+  draw();
+}
