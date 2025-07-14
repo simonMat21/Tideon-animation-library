@@ -1,222 +1,205 @@
-# 🌀 Tideon.js
+# Tideon.js
 
-A lightweight, customizable JavaScript animation engine that supports `to`, `from`, `animate`, easing functions (`linear`, `easeIn`, `easeOut`, etc.), and animation sequences. Perfect for animating object-style properties such as `x`, `y`, `opacity`, and more — commonly used in custom DOM wrappers or canvas-style animations.
+**Tideon.js** is a lightweight, extensible JavaScript animation engine designed for creating smooth and expressive UI and canvas animations with minimal effort. It supports advanced animation features like easing, chained sequences, curve-path motion, and "from", "to", and "mix" transition styles.
 
-create cool and amazing visuals with Tideon.js
-
----
-
-## Example use of Tideon.js : [example website](https://simonmat21.github.io/Tideon-animation-library/).
-
-## 📦 Features
-
-- 🔁 Frame-based animations
-- 🎯 Supports `to`, `from`, `animate`, and `mix` styles
-- ⏱ Easing functions: `linear`, `easeIn`, `easeOut`, `easeInOut`
-- ⏳ Supports animation sequences and delays
-- 🧠 One-time initial value caching
-- 🧩 Fully customizable animation parameters
-- 🔂 Optional looping
+> **New!** ✨ Now includes a built-in **Curve Editor** — a visual, draggable canvas tool that lets you define custom animation paths interactively!
 
 ---
 
-## 🚀 Getting Started
+## 🛠️ Features
 
-### 1. Add the file and import Animator
+- ⚡ Powerful and fast frame-based animation loop
+- 🎛️ Rich easing support (linear, back, bounce, elastic, exponential, etc.)
+- 🔁 Sequences of chained animations
+- 🔄 Looping, delay, and custom per-frame logic
+- 🎯 Supports both absolute (`to`, `from`) and relative (`animate`) transitions
+- 🧹 Integrated curve editor with Catmull-Rom interpolation for smooth path motion
+- 🧼 Works seamlessly with HTML elements via `htmlToObj` wrapper
 
-```js
-import { Animator } from "./Tideon.js";
+---
+
+## 📦 Installation
+
+Just include `Animator.js` in your project:
+
+```html
+<script src="Animator.js"></script>
 ```
 
-### 2. Create an animator instance and initialise the loop
+Or import it as a module:
 
 ```js
-const animator = new Animator();
-animator.mainLoop();
+import { Animator, htmlToObj, initCurveEditor } from "./Animator.js";
 ```
 
-### 3. Animate an object
+---
+
+## 🧠 Animator Class (Core API)
+
+### 🛠️ Constructor
 
 ```js
-const box = { x: 0, y: 0, opacity: 1 };
+const ani = new Animator();
+```
 
-animator.standAloneAnimate(150, [
+Creates a new animation manager instance.
+
+### ⭮️ `mainLoop(interval = 10)`
+
+Starts the animation engine loop, checking for and running animation stages every `interval` ms.
+
+### ➕ `addStage({ funcName, Args })` or `{ func, Args }`
+
+Adds a new stage (step) in the animation pipeline.
+
+---
+
+## 🔧 Animator Functions
+
+### 🏠 Structure
+
+You animate objects by building **stages**, and then letting `mainLoop()` run those stages frame by frame.
+
+---
+
+### 🎮 `animate(duration, A)`
+
+Performs relative property changes (deltas).
+
+```js
+ani.animate(50, [
   {
-    obj: box,
-    changes: { x: 1000 },
+    obj: myObj,
+    changes: { x: 100, opacity: -0.3 },
     parameters: { ease: "easeOut" },
   },
 ]);
 ```
 
+- `changes` are deltas (not final values)
+- Automatically caches starting values
+- Supports `parameters.ease`
+
 ---
 
-## 🧠 Core Concepts
+### 🌟 `to(duration, A)`
 
-## These are functions that are to be used with animationSequence
-
-### 🎬 animate(duration, changesArray)
-
-Performs delta-based animations with optional easing.
+Animates from current state **to** a target value.
 
 ```js
-animator.animate(60, [
-  { obj, changes: { x: 100 }, parameters: { ease: "easeInOut" } },
+ani.to(60, [{ obj: myObj, changes: { x: 200, y: 100 } }]);
+```
+
+---
+
+### 📽 `from(duration, A)`
+
+Starts from an offset state, animates **back to original**.
+
+```js
+ani.from(40, [{ obj: myObj, changes: { x: -50, y: -30 } }]);
+```
+
+---
+
+### 🧪 `mix(duration, A)`
+
+Mixes different animation types (`from`, `to`, `animate`) in one call.
+
+```js
+ani.mix(80, [
+  { tag: "from", obj: myObj, changes: { x: -100, y: -50 } },
+  { tag: "to", obj: anotherObj, changes: { x: 300, y: 150 } },
+  { tag: "animate", obj: thirdObj, changes: { opacity: 0.5 } },
 ]);
 ```
 
 ---
 
-### 📈 to(duration, changesArray)
+### ⏳ `delay(duration)`
 
-Moves an object **to** a target value.
+Pauses the sequence for a fixed number of frames.
 
 ```js
-animator.to(60, [{ obj, changes: { x: 400, opacity: 0 } }]);
+ani.delay(30); // Wait for 30 frames
 ```
 
 ---
 
-### 📉 from(duration, changesArray)
+### 🏃 `animateFunc(duration, func)`
 
-Animates an object **from** a temporary offset value to its original.
-
-```js
-animator.from(60, [{ obj, changes: { y: -50 } }]);
-```
-
----
-
-### 🧪 mix(duration, array)
-
-Combines `from`, `to`, and `animate` style instructions in one animation:
+Per-frame callback-based animation.
 
 ```js
-animator.mix(60, [
-  { tag: "from", obj, changes: { x: -100 } },
-  { tag: "to", obj, changes: { y: 200 } },
-  { tag: "animate", obj, changes: { opacity: 0.3 } },
-]);
-```
-
----
-
-### 💤 delay(duration)
-
-Inserts a pause between animations.
-
-```js
-animator.delay(30);
-```
-
----
-
-### 🧵 animationSequence([step1, step2, ...])
-
-Runs multiple animations one after the other.
-
-```js
-const step1 = animator.to(60, [{ obj, changes: { x: 200 } }]);
-const step2 = animator.animate(60, [{ obj, changes: { opacity: -0.5 } }]);
-
-animator.animationSequence([step1, step2]);
-```
-
----
-
-### 🔁 mainLoop()
-
-Continuously executes your animation sequence using `setTimeout`.
-
-```js
-animator.mainLoop();
-```
-
----
-
-## 🛠 Internal Utilities
-
-| Function                  | Description                                                   |
-| ------------------------- | ------------------------------------------------------------- |
-| `setDelayMult(val)`       | Sets a global speed multiplier (only before animation starts) |
-| `initialVal(a, id)`       | Stores and retrieves initial values (used for caching)        |
-| `initialFunc(func, id)`   | Caches return value of a function during the first run        |
-| `sub_animate(n, f)`       | Core frame driver. Calls function `f(frame)` for `n` frames   |
-| `addStage(stage)`         | Adds an animation stage to the `listOfActions` queue          |
-| `mainAnimationSequence()` | Executes queued stages one at a time                          |
-| `functionsDictionary`     | Lookup for named animation steps (`funcName`)                 |
-
----
-
-## 💡 Example Use Case
-
-Suppose you have a custom object that wraps a DOM element and controls its style:
-
-```js
-class divToObj {
-  constructor(id) {
-    this.divRef = document.getElementById(id);
-  }
-
-  set x(val) {
-    this.divRef.style.left = val + "px";
-  }
-  get x() {
-    return parseFloat(getComputedStyle(this.divRef).left);
-  }
-
-  // ... (other style props: y, opacity, etc.)
-}
-```
-
-Now you can animate the DOM element using `Animator`:
-
-```js
-const box = new divToObj("box1");
-
-animator.addStage({
-  func: function () {
-    return animator.animationSequence([
-      animator.animate(80, [
-        {
-          obj: box,
-          changes: { x: 500 },
-          parameters: { ease: "easeOut" },
-        },
-      ]),
-    ]);
-  },
+ani.animateFunc(100, (frame) => {
+  obj.x += 1;
+  obj.y += Math.sin(frame / 10);
 });
 ```
 
 ---
 
-## 🔧 Customize
+### 🌍 `standAloneCurve(obj, points, duration, ease)`
 
-You can extend the `easeMap` in `getEaseFunction()` to support:
+Moves an object smoothly along a Catmull-Rom interpolated path.
 
-- `easeInCubic`
-- `bounce`
-- `elastic`
-- or even custom timing functions.
+```js
+ani.standAloneCurve(obj, points, 120, "easeInOutCubic");
+```
 
----
-
-## 🔧 useful tips
-
-This library is mainly made for making cool animations and is best when used with other drawing libraries like p5.js.
-
-This.is meant to be a really light weight library that can be easily implimented. So I won't recommend this library for more professional projects.
+- `points`: An array of `{ x, y }` coordinates
+- `obj`: Must have `x` and `y` properties
 
 ---
 
-## 📚 License
+## 🔍 Curve Editor
 
-MIT License — Free to use, modify, and distribute.
+### `initCurveEditor()`
+
+Adds a canvas-based curve editor on your screen to **visually define path points** by clicking and dragging.
+
+- ✍ Click to add a point
+- ↔ Drag to move
+- 📍 Double-click to delete
+- ⌨ Press `E` to export the path (prints to console)
+
+Great for building paths to use with `standAloneCurve()`!
 
 ---
 
-## ✍️ Author
+## 🏢 htmlToObj
 
-Built by Justaguy.21 — Happy Animating!  
-Feel free to open issues or contribute on GitHub.
+A small utility class that wraps around a DOM element and gives you animation-friendly properties like:
+
+- `x`, `y`, `width`, `height`
+- `rotation`, `scale`, `opacity`, `color`
+
+Example:
+
+```js
+const box = new htmlToObj("boxId");
+ani.standAloneTo(60, [{ obj: box, changes: { x: 200, opacity: 0.5 } }]);
+```
+
+---
+
+## 🔧 Example
+
+```js
+const a = new Animator();
+a.standAloneFrom(40, [{ obj: myObj, changes: { x: -100, opacity: -0.5 } }]);
+a.standAloneTo(60, [{ obj: myObj, changes: { x: 200, opacity: 1 } }]);
+a.mainLoop();
+```
+
+---
+
+## 🚀 License
+
+MIT License
+
+---
+
+## ✨ Author
+
+Created with ❤️ by Simon Mattekkatt (JustAGuy.21)
