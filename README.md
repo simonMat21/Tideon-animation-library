@@ -2,7 +2,7 @@
 
 **Tideon.js** is a lightweight, extensible JavaScript animation engine designed for creating smooth and expressive UI and canvas animations with minimal effort. It supports advanced animation features like easing, chained sequences, curve-path motion, and "from", "to", and "mix" transition styles.
 
-Example use of Tideon.js : https://simonmat21.github.io/Tideon-animation-library/
+Example use of Tideon.js :   [example website](https://simonmat21.github.io/Tideon-animation-library/).
 
 > **New!** ✨ Now includes a built-in **Curve Editor** — a visual, draggable canvas tool that lets you define custom animation paths interactively!
 
